@@ -1,14 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Full-Court Basketball</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <title>BasketballGame 3D</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<h1>Full-Court Basketball</h1>
-<canvas id="gameCanvas" width="800" height="600"></canvas>
-<p>Controls: Arrow keys to move, Spacebar to shoot</p>
-<script src="game.js"></script>
+  <div id="ui">
+    <div id="title">BasketballGame 3D</div>
+    <div id="score">Player: 0 &nbsp;&nbsp; Opponent: 0</div>
+    <div id="help">Move: WASD / Arrows · Drag mouse to aim & release to shoot · Space to reset ball</div>
+    <button id="resetBtn">Reset Game</button>
+  </div>
+
+  <canvas id="c"></canvas>
+
+  <!-- Three.js CDN -->
+  <script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+  <!-- Optional OrbitControls for camera debugging (comment out in prod) -->
+  <script src="https://unpkg.com/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+
+  <script src="game.js"></script>
 </body>
 </html>
