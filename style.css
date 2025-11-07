@@ -1,15 +1,26 @@
-body {
-    margin: 0;
-    padding: 0;
-    text-align: center;
-    background-color: #333;
-    color: white;
-    font-family: Arial, sans-serif;
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html,body { height: 100%; width: 100%; overflow: hidden; background: #111; font-family: Arial, Helvetica, sans-serif; }
+#c { display:block; width:100vw; height:100vh; }
+
+#ui {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  color: #fff;
+  z-index: 10;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.8);
 }
 
-canvas {
-    background-color: #228B22;
-    display: block;
-    margin: 20px auto;
-    border: 2px solid #fff;
+#title { font-weight: 700; font-size: 18px; margin-bottom: 6px; }
+#score { font-size: 14px; margin-bottom: 6px; }
+#help { font-size: 13px; color: #ddd; margin-bottom: 8px; max-width: 360px; }
+#resetBtn {
+  appearance: none;
+  border: none;
+  background: #2b8cff;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
 }
+#resetBtn:hover { background: #1f6fe0; }
