@@ -1,14 +1,19 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Players
-let player = { x: 100, y: 500, width: 30, height: 50, speed: 5, hasBall: true };
-let opponent = { x: 700, y: 500, width: 30, height: 50, speed: 4, hasBall: false };
+// Physics constants
+const GRAVITY = 0.5;
+const FLOOR_Y = canvas.height - 10;
+const BOUNCE = -0.6;
+
+// Player and opponent
+let player = { x: 100, y: FLOOR_Y - 50, width: 30, height: 50, speed: 5, hasBall: true };
+let opponent = { x: 700, y: FLOOR_Y - 50, width: 30, height: 50, speed: 4, hasBall: false };
 
 // Ball
 let ball = { x: player.x + player.width/2, y: player.y, dx: 0, dy: 0 };
 
-// Keys
+// Key input
 let keys = {};
 document.addEventListener("keydown", e => keys[e.key] = true);
 document.addEventListener("keyup", e => keys[e.key] = false);
@@ -18,8 +23,8 @@ function drawCourt() {
     ctx.fillStyle = "#228B22";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "red";
-    ctx.fillRect(50, 260, 10, 80); // left hoop
-    ctx.fillRect(740, 260, 10, 80); // right hoop
+    ctx.fillRect(50, 260, 10, 80);  // Left hoop
+    ctx.fillRect(740, 260, 10, 80); // Right hoop
 }
 
 // Draw players
@@ -46,9 +51,11 @@ function movePlayer() {
     if(keys['ArrowLeft']) player.x -= player.speed;
     if(keys['ArrowRight']) player.x += player.speed;
 
+    // Stay in bounds
     player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
-    player.y = Math.max(0, Math.min(canvas.height - player.height, player.y));
+    player.y = Math.max(0, Math.min(FLOOR_Y - player.height, player.y));
 
+    // Move ball with player if holding it
     if(player.hasBall){
         ball.x = player.x + player.width/2;
         ball.y = player.y;
@@ -64,22 +71,31 @@ function shootBall() {
     }
 }
 
-// Ball physics via Python
-async function updateBallPhysics() {
+// Ball physics
+function updateBall() {
     if(!player.hasBall){
-        const response = await fetch("/update_ball", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ball })
-        });
-        const data = await response.json();
-        ball.x = data.x;
-        ball.y = data.y;
-        ball.dx = data.dx;
-        ball.dy = data.dy;
+        ball.dy += GRAVITY;
+        ball.x += ball.dx;
+        ball.y += ball.dy;
 
-        // Reset if ball touches floor
-        if(ball.y >= canvas.height) {
+        // Floor collision
+        if(ball.y > FLOOR_Y) {
+            ball.y = FLOOR_Y;
+            ball.dy *= BOUNCE;
+        }
+
+        // Wall collisions
+        if(ball.x < 0) {
+            ball.x = 0;
+            ball.dx *= BOUNCE;
+        }
+        if(ball.x > canvas.width) {
+            ball.x = canvas.width;
+            ball.dx *= BOUNCE;
+        }
+
+        // Reset ball if it stops moving
+        if(Math.abs(ball.dy) < 1 && ball.y >= FLOOR_Y - 1) {
             player.hasBall = true;
             ball.x = player.x + player.width/2;
             ball.y = player.y;
@@ -89,7 +105,7 @@ async function updateBallPhysics() {
     }
 }
 
-// Simple AI: opponent moves toward ball
+// Opponent AI
 function moveOpponent() {
     if(ball.x > opponent.x) opponent.x += opponent.speed;
     if(ball.x < opponent.x) opponent.x -= opponent.speed;
@@ -97,18 +113,16 @@ function moveOpponent() {
 }
 
 // Game loop
-async function draw() {
+function gameLoop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawCourt();
     drawPlayers();
     drawBall();
-
     movePlayer();
     shootBall();
-    await updateBallPhysics();
+    updateBall();
     moveOpponent();
-
-    requestAnimationFrame(draw);
+    requestAnimationFrame(gameLoop);
 }
 
-draw();
+gameLoop();
